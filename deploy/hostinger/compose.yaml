@@ -44,10 +44,14 @@ services:
       - /bin/sh
       - -ec
       - |
-        apk add --no-cache tzdata >/dev/null
-        cp "/usr/share/zoneinfo/$$TZ" /etc/localtime
-        printf '0 3 * * * wget -q -O /dev/null http://app:8080/api/v1/cron/%s\n' "$$STATIC_CRON_TOKEN" | crontab -
+        # 23:00 UTC is 03:00 in Dubai. Avoid a package download at startup.
+        printf '0 23 * * * wget -q -O /dev/null http://app:8080/api/v1/cron/%s\n' "$$STATIC_CRON_TOKEN" | crontab -
         exec crond -f -L /dev/stdout
+
+networks:
+  default:
+    name: firefly-iii-internal
+    internal: true
 
 volumes:
   uploads:

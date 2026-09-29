@@ -1,6 +1,6 @@
 # Hostinger deployment
 
-This directory deploys the official Firefly III 6.7.6 image and PostgreSQL 17.11 on the Hostinger VPS. Traefik is the existing, separate reverse proxy. The only public route is `finance.adwinalias.com`; the app's host port binds to loopback and the database has no host port.
+This directory deploys the official Firefly III 6.7.6 image and PostgreSQL 17.11 on the Hostinger VPS. Traefik is the existing, separate reverse proxy. The only public route is `finance.adwinalias.com`; the app's host port binds to loopback and the database has no host port. The Firefly services share an internal Docker network with no default outbound internet route. The daily Firefly scheduler uses 23:00 UTC, which is 03:00 in Dubai.
 
 ## Install
 
