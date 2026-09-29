@@ -1,0 +1,56 @@
+name: firefly-iii
+
+services:
+  app:
+    image: fireflyiii/core:version-6.7.6
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/var/www/html/storage/upload
+    ports:
+      - "127.0.0.1:3080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.firefly-iii.rule=Host(`finance.adwinalias.com`)"
+      - "traefik.http.routers.firefly-iii.entrypoints=websecure"
+      - "traefik.http.routers.firefly-iii.tls.certresolver=letsencrypt"
+      - "traefik.http.services.firefly-iii.loadbalancer.server.port=8080"
+
+  db:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: firefly
+      POSTGRES_USER: firefly
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  cron:
+    image: alpine:3.24.2
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - app
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        apk add --no-cache tzdata >/dev/null
+        cp "/usr/share/zoneinfo/$$TZ" /etc/localtime
+        printf '0 3 * * * wget -q -O /dev/null http://app:8080/api/v1/cron/%s\n' "$$STATIC_CRON_TOKEN" | crontab -
+        exec crond -f -L /dev/stdout
+
+volumes:
+  uploads:
+    name: firefly-iii-uploads
+  database:
+    name: firefly-iii-database
