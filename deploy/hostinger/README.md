@@ -8,7 +8,7 @@ This directory deploys the official Firefly III 6.7.6 image and PostgreSQL 17.11
 2. Copy this directory to `/opt/firefly-iii` on the VPS. Copy `.env.example` to `.env`, replace the owner email and all three secret placeholders with unique generated values, then `chmod 600 .env`.
 3. Run `docker compose config --quiet` and `docker compose up -d` from `/opt/firefly-iii`.
 4. Wait for HTTPS and create the two intended user accounts. Firefly III's admin setting **Single user mode** should then be enabled, which closes public registration while preserving the existing accounts.
-5. Install a root cron entry for `backup.sh` every day. Hostinger's separate weekly VPS backups provide the off-VPS copy; check that they continue to run.
+5. Install `backup.cron` as `/etc/cron.d/firefly-iii-backup` (mode `644`), then restart the host cron service. Hostinger's separate weekly VPS backups provide the off-VPS copy; check that they continue to run.
 
 ## Backups and restore
 

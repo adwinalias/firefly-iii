@@ -1,0 +1,2 @@
+# Run at 01:17 UTC (05:17 Asia/Dubai when the VPS uses UTC).
+17 1 * * * root /opt/firefly-iii/backup.sh >>/var/log/firefly-iii-backup.log 2>&1
